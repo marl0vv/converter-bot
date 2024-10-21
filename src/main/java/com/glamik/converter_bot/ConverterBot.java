@@ -20,17 +20,21 @@ import static org.telegram.telegrambots.abilitybots.api.objects.Locality.ALL;
 import static org.telegram.telegrambots.abilitybots.api.objects.Privacy.PUBLIC;
 import static org.telegram.telegrambots.abilitybots.api.util.AbilityUtils.getChatId;
 
-
 @Component
 public class ConverterBot extends AbilityBot implements SpringLongPollingBot {
 
-    public ConverterBot(TelegramClient telegramClient, @Value("${bot.username}") String botUsername) {
+    private final String botToken;
+
+    public ConverterBot(TelegramClient telegramClient,
+                        @Value("${bot.username}") String botUsername,
+                        @Value("${bot.token}") String botToken) {
         super(telegramClient, botUsername);
+        this.botToken = botToken;
     }
 
     @Override
     public String getBotToken() {
-        return "8128311763:AAFbethIcdK100Ici4SUypqKTlF98Zsykyw";
+        return botToken;
     }
 
     @Override
