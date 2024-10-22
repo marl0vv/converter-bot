@@ -9,5 +9,4 @@ public class ConverterBotApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ConverterBotApplication.class, args);
 	}
-
 }

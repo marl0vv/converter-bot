@@ -1,4 +1,7 @@
 HELP.md
+src/main/resources/token.properties
+WebpConversionBot
+WebpConversionBot.wal.0
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
