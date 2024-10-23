@@ -1,4 +1,4 @@
-package com.glamik.converterbot.controller.dto;
+package com.glamik.converterbot.feign.dto;
 
 import com.glamik.converterbot.enums.ConversionTaskStatus;
 import com.glamik.converterbot.enums.ErrorMessage;

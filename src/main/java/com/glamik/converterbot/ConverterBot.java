@@ -1,9 +1,10 @@
 package com.glamik.converterbot;
 
-import com.glamik.converterbot.controller.ConverterBotController;
-import com.glamik.converterbot.controller.dto.ConversionTaskStatusDto;
+import com.glamik.converterbot.feign.dto.ConversionTaskStatusDto;
 import com.glamik.converterbot.exception.ConversionTaskNotFoundException;
 
+import com.glamik.converterbot.feign.ConverterBotFeign;
+import feign.FeignException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.abilitybots.api.bot.AbilityBot;
@@ -32,17 +33,18 @@ public class ConverterBot extends AbilityBot implements SpringLongPollingBot {
     private final String botToken;
     private final long creatorId;
 
-    private final ConverterBotController converterBotController;
+    private final ConverterBotFeign converterBotFeign;
 
     public ConverterBot(TelegramClient telegramClient,
                         @Value("${bot.username}") String botUsername,
                         @Value("${bot.token}") String botToken,
                         @Value("${bot.creatorId}") long creatorId,
-                        ConverterBotController converterBotController) {
+
+                        ConverterBotFeign converterBotFeign) {
         super(telegramClient, botUsername);
         this.botToken = botToken;
         this.creatorId = creatorId;
-        this.converterBotController = converterBotController;
+        this.converterBotFeign = converterBotFeign;
     }
 
     @Override
@@ -96,6 +98,16 @@ public class ConverterBot extends AbilityBot implements SpringLongPollingBot {
                 .build();
     }
 
+    private ConversionTaskStatusDto getStatus(UUID taskId) {
+        ConversionTaskStatusDto status;
+        try {
+            status = converterBotFeign.getTaskStatus(taskId);
+        } catch (FeignException.NotFound e) {
+            throw new ConversionTaskNotFoundException("Conversion task with id " + taskId + " was not found");
+        }
+        return status;
+    }
+
     private void handleConversionStatus(MessageContext ctx) {
         UUID taskId;
         try {
@@ -105,7 +117,7 @@ public class ConverterBot extends AbilityBot implements SpringLongPollingBot {
             return;
         }
         try {
-            ConversionTaskStatusDto status = converterBotController.getTaskStatus(taskId);
+            ConversionTaskStatusDto status = getStatus(taskId);
             switch (status.getStatus()) {
                 case SUCCESS -> silent.send("Your image was successfully converted.", ctx.chatId());
                 case ERROR -> {
@@ -121,6 +133,7 @@ public class ConverterBot extends AbilityBot implements SpringLongPollingBot {
             silent.send("Conversion task with ID " + taskId + " was not found.", ctx.chatId());
         }
     }
+
 
     public Reply sayYuckOnImage() {
         BiConsumer<BaseAbilityBot, Update> action = (bot, upd) -> silent.send("Yuck", getChatId(upd));
