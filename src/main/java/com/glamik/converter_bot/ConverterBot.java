@@ -3,8 +3,10 @@ package com.glamik.converter_bot;
 import com.glamik.converter_bot.controller.ConverterBotController;
 import com.glamik.converter_bot.controller.dto.ConversionTaskStatusDto;
 
+import com.glamik.converter_bot.exception.ConversionTaskNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.telegram.telegrambots.abilitybots.api.bot.AbilityBot;
 import org.telegram.telegrambots.abilitybots.api.bot.BaseAbilityBot;
 import org.telegram.telegrambots.abilitybots.api.objects.Ability;
@@ -103,17 +105,21 @@ public class ConverterBot extends AbilityBot implements SpringLongPollingBot {
             silent.send("Invalid task ID format. Prove a valid UUID.", ctx.chatId());
             return;
         }
-
-        ConversionTaskStatusDto status = converterBotController.getTaskStatus(taskId);
-        switch (status.getStatus()) {
-            case SUCCESS -> silent.send("Your image was successfully converted.", ctx.chatId());
-            case ERROR -> {
-                silent.send("There was an error during conversion process!", ctx.chatId());
-                silent.send(String.valueOf(status.getErrorMessage()), ctx.chatId());
+        try {
+            ConversionTaskStatusDto status = converterBotController.getTaskStatus(taskId);
+            switch (status.getStatus()) {
+                case SUCCESS -> silent.send("Your image was successfully converted.", ctx.chatId());
+                case ERROR -> {
+                    silent.send("There was an error during conversion process!", ctx.chatId());
+                    silent.send(String.valueOf(status.getErrorMessage()), ctx.chatId());
+                }
+                case DELETED ->
+                        silent.send("Your image was old and has been deleted. Convert image again.", ctx.chatId());
+                case PENDING -> silent.send("Your image conversion is in process. Please wait.", ctx.chatId());
+                default -> silent.send("Unknown status.", ctx.chatId());
             }
-            case DELETED -> silent.send("Your image was old and has been deleted. Convert image again.", ctx.chatId());
-            case PENDING -> silent.send("Your image conversion is in process. Please wait.", ctx.chatId());
-            default -> silent.send("Unknown status.", ctx.chatId());
+        } catch (ConversionTaskNotFoundException e) {
+            silent.send("Conversion task with ID " + taskId + " was not found.", ctx.chatId());
         }
     }
 
