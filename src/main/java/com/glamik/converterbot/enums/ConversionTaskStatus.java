@@ -1,4 +1,4 @@
-package com.glamik.converter_bot.enums;
+package com.glamik.converterbot.enums;
 
 public enum ConversionTaskStatus {
     PENDING,

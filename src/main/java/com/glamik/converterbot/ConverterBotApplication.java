@@ -1,4 +1,4 @@
-package com.glamik.converter_bot;
+package com.glamik.converterbot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

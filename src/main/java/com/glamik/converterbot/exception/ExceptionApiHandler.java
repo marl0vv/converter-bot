@@ -1,6 +1,6 @@
-package com.glamik.converter_bot.exception;
+package com.glamik.converterbot.exception;
 
-import com.glamik.converter_bot.exception.dto.ErrorDto;
+import com.glamik.converterbot.exception.dto.ErrorDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

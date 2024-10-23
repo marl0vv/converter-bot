@@ -1,4 +1,4 @@
-package com.glamik.converter_bot.exception;
+package com.glamik.converterbot.exception;
 
 public class ConversionTaskNotFoundException extends RuntimeException {
     public ConversionTaskNotFoundException(String message) {

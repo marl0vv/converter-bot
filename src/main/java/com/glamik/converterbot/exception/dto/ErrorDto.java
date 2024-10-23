@@ -1,4 +1,4 @@
-package com.glamik.converter_bot.exception.dto;
+package com.glamik.converterbot.exception.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

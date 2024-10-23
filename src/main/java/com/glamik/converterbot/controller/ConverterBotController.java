@@ -1,7 +1,7 @@
-package com.glamik.converter_bot.controller;
+package com.glamik.converterbot.controller;
 
-import com.glamik.converter_bot.controller.dto.ConversionTaskStatusDto;
-import com.glamik.converter_bot.exception.ConversionTaskNotFoundException;
+import com.glamik.converterbot.controller.dto.ConversionTaskStatusDto;
+import com.glamik.converterbot.exception.ConversionTaskNotFoundException;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.web.bind.annotation.GetMapping;

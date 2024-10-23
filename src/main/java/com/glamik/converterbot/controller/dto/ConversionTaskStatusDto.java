@@ -1,7 +1,7 @@
-package com.glamik.converter_bot.controller.dto;
+package com.glamik.converterbot.controller.dto;
 
-import com.glamik.converter_bot.enums.ConversionTaskStatus;
-import com.glamik.converter_bot.enums.ErrorMessage;
+import com.glamik.converterbot.enums.ConversionTaskStatus;
+import com.glamik.converterbot.enums.ErrorMessage;
 import lombok.*;
 
 @AllArgsConstructor

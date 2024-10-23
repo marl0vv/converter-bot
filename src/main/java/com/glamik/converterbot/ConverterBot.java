@@ -1,12 +1,11 @@
-package com.glamik.converter_bot;
+package com.glamik.converterbot;
 
-import com.glamik.converter_bot.controller.ConverterBotController;
-import com.glamik.converter_bot.controller.dto.ConversionTaskStatusDto;
+import com.glamik.converterbot.controller.ConverterBotController;
+import com.glamik.converterbot.controller.dto.ConversionTaskStatusDto;
+import com.glamik.converterbot.exception.ConversionTaskNotFoundException;
 
-import com.glamik.converter_bot.exception.ConversionTaskNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.telegram.telegrambots.abilitybots.api.bot.AbilityBot;
 import org.telegram.telegrambots.abilitybots.api.bot.BaseAbilityBot;
 import org.telegram.telegrambots.abilitybots.api.objects.Ability;
@@ -31,18 +30,18 @@ import static org.telegram.telegrambots.abilitybots.api.util.AbilityUtils.getCha
 public class ConverterBot extends AbilityBot implements SpringLongPollingBot {
 
     private final String botToken;
-
-    @Value("${bot.creatorId}")
-    private long creatorId;
+    private final long creatorId;
 
     private final ConverterBotController converterBotController;
 
     public ConverterBot(TelegramClient telegramClient,
                         @Value("${bot.username}") String botUsername,
                         @Value("${bot.token}") String botToken,
+                        @Value("${bot.creatorId}") long creatorId,
                         ConverterBotController converterBotController) {
         super(telegramClient, botUsername);
         this.botToken = botToken;
+        this.creatorId = creatorId;
         this.converterBotController = converterBotController;
     }
 
