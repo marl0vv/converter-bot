@@ -1,9 +1,8 @@
 package com.glamik.converterbot;
 
 import com.glamik.converterbot.feign.dto.ConversionTaskStatusDto;
-import com.glamik.converterbot.exception.ConversionTaskNotFoundException;
-
 import com.glamik.converterbot.feign.ConverterBotFeign;
+
 import feign.FeignException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -98,12 +97,12 @@ public class ConverterBot extends AbilityBot implements SpringLongPollingBot {
                 .build();
     }
 
-    private ConversionTaskStatusDto getStatus(UUID taskId) {
-        ConversionTaskStatusDto status;
+    private ConversionTaskStatusDto getStatus(UUID taskId, MessageContext ctx) {
+        ConversionTaskStatusDto status = null;
         try {
             status = converterBotFeign.getTaskStatus(taskId);
         } catch (FeignException.NotFound e) {
-            throw new ConversionTaskNotFoundException("Conversion task with id " + taskId + " was not found");
+            silent.send("Invalid task ID format. Provide a valid UUID.", ctx.chatId());
         }
         return status;
     }
@@ -113,24 +112,20 @@ public class ConverterBot extends AbilityBot implements SpringLongPollingBot {
         try {
             taskId = UUID.fromString(ctx.firstArg());
         } catch (IllegalArgumentException e) {
-            silent.send("Invalid task ID format. Prove a valid UUID.", ctx.chatId());
+            silent.send("Invalid task ID format. Provide a valid UUID.", ctx.chatId());
             return;
         }
-        try {
-            ConversionTaskStatusDto status = getStatus(taskId);
-            switch (status.getStatus()) {
-                case SUCCESS -> silent.send("Your image was successfully converted.", ctx.chatId());
-                case ERROR -> {
-                    silent.send("There was an error during conversion process!", ctx.chatId());
-                    silent.send(String.valueOf(status.getErrorMessage()), ctx.chatId());
-                }
-                case DELETED ->
-                        silent.send("Your image was old and has been deleted. Convert image again.", ctx.chatId());
-                case PENDING -> silent.send("Your image conversion is in process. Please wait.", ctx.chatId());
-                default -> silent.send("Unknown status.", ctx.chatId());
+
+        ConversionTaskStatusDto status = getStatus(taskId, ctx);
+        switch (status.getStatus()) {
+            case SUCCESS -> silent.send("Your image was successfully converted.", ctx.chatId());
+            case ERROR -> {
+                silent.send("There was an error during conversion process!", ctx.chatId());
+                silent.send(String.valueOf(status.getErrorMessage()), ctx.chatId());
             }
-        } catch (ConversionTaskNotFoundException e) {
-            silent.send("Conversion task with ID " + taskId + " was not found.", ctx.chatId());
+            case DELETED -> silent.send("Your image was old and has been deleted. Convert image again.", ctx.chatId());
+            case PENDING -> silent.send("Your image conversion is in process. Please wait.", ctx.chatId());
+            default -> silent.send("Unknown status.", ctx.chatId());
         }
     }
 
