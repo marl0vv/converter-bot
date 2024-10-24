@@ -19,6 +19,7 @@ import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
@@ -97,14 +98,14 @@ public class ConverterBot extends AbilityBot implements SpringLongPollingBot {
                 .build();
     }
 
-    private ConversionTaskStatusDto getStatus(UUID taskId, MessageContext ctx) {
-        ConversionTaskStatusDto status = null;
+    private Optional<ConversionTaskStatusDto> getStatus(UUID taskId, MessageContext ctx) {
         try {
-            status = converterBotFeign.getTaskStatus(taskId);
+            ConversionTaskStatusDto status = converterBotFeign.getTaskStatus(taskId);
+            return Optional.of(status);
         } catch (FeignException.NotFound e) {
-            silent.send("Invalid task ID format. Provide a valid UUID.", ctx.chatId());
+            silent.send("Image was not found. Check your UUID.", ctx.chatId());
+            return Optional.empty();
         }
-        return status;
     }
 
     private void handleConversionStatus(MessageContext ctx) {
@@ -116,7 +117,12 @@ public class ConverterBot extends AbilityBot implements SpringLongPollingBot {
             return;
         }
 
-        ConversionTaskStatusDto status = getStatus(taskId, ctx);
+        Optional<ConversionTaskStatusDto> statusOptional = getStatus(taskId, ctx);
+        if (statusOptional.isEmpty()) {
+            return;
+        }
+
+        ConversionTaskStatusDto status = statusOptional.get();
         switch (status.getStatus()) {
             case SUCCESS -> silent.send("Your image was successfully converted.", ctx.chatId());
             case ERROR -> {
